@@ -65,9 +65,12 @@ class NN:
                 self._costs.append(self._calc_cost(
                     self._layers[len(self._layers)-1].values))
         path_weights = "Pre-Weights/weight"
+        path_biases = "Pre-Weights/bias"
         for j in range(len(self._layers)):
             np.savetxt(path_weights + str(j) + ".csv",
                        self._layers[j].weight, delimiter=",")
+            np.savetxt(path_biases + str(j) + ".csv",
+                       self._layers[j].bias, delimiter=",")
 
     # return the cost function
 
@@ -149,13 +152,35 @@ class NN:
     # setup pretrained weights
     def _setup_pretrained_weights(self):
         path_weights = "Pre-Weights/weight"
-        for index, layer in enumerate(self._layers):
-            layer.weight = np.genfromtxt(
-                path_weights + index + ".csv", delimiter=",")
+        path_biases = "Pre-Weights/bias"
+        for index in range(len(self._layers)):
+            temp1 = np.genfromtxt(
+                path_biases + str(index) + ".csv", delimiter=",")
+            self._layers[index].bias = np.array([temp1]).reshape(
+                1, self._layers[index].shape[1])
+            # output layer
+            if index == 0:
+                if (self._X.shape[1] == 1 or self._layers[0].shape[1] == 1):
+                    temp = np.genfromtxt(
+                        path_weights + str(index) + ".csv", delimiter=",")
+                    self._layers[index].weight = np.array([temp]).reshape(
+                        self._layers[index - 1].shape[1], self._layers[index].shape[1])
+                else:
+                    self._layers[index].weight = np.genfromtxt(
+                        path_weights + str(index) + ".csv", delimiter=",")
+            else:
+                if ((self._layers[index - 1].shape[1] == 1) or (self._layers[index].shape[1] == 1)):
+                    temp = np.genfromtxt(
+                        path_weights + str(index) + ".csv", delimiter=",")
+                    self._layers[index].weight = np.array([temp]).reshape(
+                        self._layers[index - 1].shape[1], self._layers[index].shape[1])
+                else:
+                    self._layers[index].weight = np.genfromtxt(
+                        path_weights + str(index) + ".csv", delimiter=",")
 
     # predict with pretrained weights
 
     def predict_pretrained_weights(self, X_test):
         self._setup()
         self._setup_pretrained_weights()
-        self.predict(X_test)
+        return self.predict(X_test)
