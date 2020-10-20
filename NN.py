@@ -1,5 +1,7 @@
 import numpy as np
 from Layer import Layer
+import math
+
 """
     NN: is a simple neural network model for classification & regression problems
     ....
@@ -57,9 +59,25 @@ class NN:
         self._costs = []
         self._learning_rate = learning_rate
         self._iteration = iteration
+
+        # Adam parameter
+        # VdW = 0
+        # Vdb = 0
+        # SdW = 0
+        # Sdb = 0
+        # beta1 = 0.9
+        # beta2 = 0.999
+        # epsilon = math.pow(10, -8)
+
         for i in range(iteration):
             self._fowardPropagation()
             self._backPropagation()
+
+            # Adam implementation
+            # self._fowardPropagation()
+            # self._backPropagation_Adam(
+            #     VdW, Vdb, SdW, Sdb, beta1, beta2, epsilon, i)
+
             print(self._calc_cost(self._layers[len(self._layers)-1].values))
             if(i % 100 == 0):
                 self._costs.append(self._calc_cost(
@@ -111,6 +129,20 @@ class NN:
             else:
                 delta = self._layers[i]._backward(
                     delta, self._layers[i-1], self._learning_rate)
+
+    # backprop Adam
+
+    def _backPropagation_Adam(self, VdW, Vdb, SdW, Sdb, beta1, beta2, epsilon, iter_num):
+        # delta = self._Y - self._layers[len(self._layers)-1].values
+        delta = (-self._Y / self._layers[len(self._layers) - 1].values) + (
+            (1-self._Y) / (1 - self._layers[len(self._layers) - 1].values))
+        for i in range(len(self._layers)-1, -1, -1):
+            if (i == 0):  # first hidden layer
+                delta = self._layers[i]._backward_Adam(
+                    delta, self._X, self._learning_rate, VdW, Vdb, SdW, Sdb, beta1, beta2, epsilon, iter_num)
+            else:
+                delta = self._layers[i]._backward_Adam(
+                    delta, self._layers[i-1], self._learning_rate, VdW, Vdb, SdW, Sdb, beta1, beta2, epsilon, iter_num)
 
     def predict(self, X_test):
         for index, layer in enumerate(self._layers):
