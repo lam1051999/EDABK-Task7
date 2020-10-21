@@ -47,11 +47,24 @@ class Layer:
         # NOT SURE ABOUT THE DERIVATIVE OF BIAS
         # <CHECK-LATER>
         delta_bias = (1/self.shape[0])*(np.sum(delta, axis=0).reshape(1, -1))
+
+        # no regularization
+        # if isinstance(prev_layer, np.ndarray):  # first hidden layer
+        #     weight_der = (1/self.shape[0])*np.dot(prev_layer.T, delta)
+        #     # print(prev_layer.shape)
+        # else:
+        #     weight_der = (1/self.shape[0])*np.dot(prev_layer.values.T, delta)
+
+        # adding regularization
+        regu_para = 0.1
         if isinstance(prev_layer, np.ndarray):  # first hidden layer
-            weight_der = (1/self.shape[0])*np.dot(prev_layer.T, delta)
+            weight_der = (1/self.shape[0])*np.dot(prev_layer.T,
+                                                  delta) + (regu_para/self.shape[0])*self.weight
             # print(prev_layer.shape)
         else:
-            weight_der = (1/self.shape[0])*np.dot(prev_layer.values.T, delta)
+            weight_der = (1/self.shape[0])*np.dot(prev_layer.values.T,
+                                                  delta) + (regu_para/self.shape[0])*self.weight
+
         self.bias -= learning_rate * delta_bias
         delta = np.dot(delta, self.weight.T)
         self.weight -= learning_rate * weight_der

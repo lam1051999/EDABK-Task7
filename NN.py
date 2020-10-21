@@ -94,7 +94,17 @@ class NN:
 
     def _calc_cost(self, Y_pred):
         # return np.sum(np.square(self._Y - Y_pred) / 2)
-        return (-1/self._X.shape[0]) * np.sum(self._Y.T @ (np.log(Y_pred)) + (1 - self._Y).T @ (np.log(1 - Y_pred)))
+
+        # no regularization
+        # return (-1/self._X.shape[0]) * np.sum(self._Y.T @ (np.log(Y_pred)) + (1 - self._Y).T @ (np.log(1 - Y_pred)))
+
+        # adding regularization
+        regu_part = 0
+        for layer in self._layers:
+            regu_part += np.sum(np.power(layer.weight, 2))
+        regu_para = 0.1
+        regu_part = (regu_para/(2*self._X.shape[0])) * regu_part
+        return (-1/self._X.shape[0]) * np.sum(self._Y.T @ (np.log(Y_pred)) + (1 - self._Y).T @ (np.log(1 - Y_pred))) + regu_part
 
     # configuration the shape,
     # weight and bias of each layer
