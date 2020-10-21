@@ -2,5 +2,6 @@ Human/
 Non-Human/
 Human-2/
 Non-Human-2/
-Pre-Weights/
 Conclusion/
+__pycache__/
+.ipynb_checkpoints/
